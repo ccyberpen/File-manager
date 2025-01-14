@@ -121,5 +121,17 @@
   <ItemGroup>
     <Resource Include="Resources\left.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\paste.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\rename.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\delete.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -116,7 +116,6 @@ namespace FileManager
                 var filePaths = new StringCollection();
                 filePaths.AddRange(selectedItems.Select(item => item.Path).ToArray());
                 Clipboard.SetFileDropList(filePaths);
-                MessageBox.Show("Файлы скопированы в буфер обмена.");
             }
         }
         //Копировать директорию
@@ -149,7 +148,7 @@ namespace FileManager
             }
         }
         //Вставка файлов из буфера обмена
-        private async void PasteFilesFromClipboard()
+        private async void PasteFilesFromClipboard(bool cut=false)
         {
             if (Clipboard.ContainsFileDropList())
             {
@@ -196,7 +195,7 @@ namespace FileManager
 
                             if (File.Exists(filePath))
                             {
-                                CopyFileWithProgress(filePath, targetFilePath, progressWindow, currentFile, totalFiles);
+                                CopyFileWithProgress(filePath, targetFilePath, progressWindow, currentFile, totalFiles);      
                             }
                             else if (Directory.Exists(filePath))
                             {

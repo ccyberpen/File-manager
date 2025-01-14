@@ -6,14 +6,43 @@
     <DockPanel>
         <!-- Панель инструментов -->
         <ToolBar DockPanel.Dock="Top">
-            
+
             <!-- Существующие кнопки -->
             <Button Content="Новый" Width="75" Margin="2"/>
-            <Button Content="Удалить" Width="75" Margin="2" Click="DeleteButton_Click"/>
-            <Button Content="Копировать" Width="75" Margin="2" Click="CopyButton_Click"/>
-            <Button Content="Вставить" Width="75" Margin="2" Click="PasteButton_Click"/>
-         
-            <Button Content="Переименовать" Width="100" Margin="2" Click="RenameButton_Click"/>
+            
+            <Button Width="100" Margin="2" Click="CopyButton_Click">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/copy.png" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Копировать" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Width="100" Margin="2" Click="PasteButton_Click">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/paste.png" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Вставить" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button Width="120" Margin="2" Click="RenameButton_Click">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/rename.png" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Переименовать" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Width="100" Margin="2" Click="DeleteButton_Click">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/delete.png" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Удалить" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </ToolBar>
 
         <!-- Остальная часть XAML остается без изменений -->
