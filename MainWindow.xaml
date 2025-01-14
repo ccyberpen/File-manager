@@ -7,8 +7,6 @@
         <!-- Панель инструментов -->
         <ToolBar DockPanel.Dock="Top">
             
-            
-
             <!-- Существующие кнопки -->
             <Button Content="Новый" Width="75" Margin="2"/>
             <Button Content="Удалить" Width="75" Margin="2"/>
@@ -61,7 +59,7 @@
 
             <!-- Панель содержимого (ListView) -->
             <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5,0,0,0">
-                <ListView Name="FilesListView" MouseDoubleClick="FilesListView_MouseDoubleClick">
+                <ListView Name="FilesListView" MouseDoubleClick="FilesListView_MouseDoubleClick" KeyDown="FilesListView_KeyDown">
                     <ListView.View>
                         <GridView>
 

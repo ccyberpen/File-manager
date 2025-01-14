@@ -7,6 +7,9 @@ using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Imaging;
+using System.Linq;
+using System.Collections.Specialized;
+using System.Threading.Tasks;
 
 
 namespace FileManager
@@ -25,6 +28,108 @@ namespace FileManager
             PopulateDrives();
         }
 
+        private void FilesListView_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+            if (e.Key == Key.C && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                CopySelectedFilesToClipboard();
+            }
+            else if (e.Key == Key.V && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                PasteFilesFromClipboard();
+            }
+        }
+        private void CopySelectedFilesToClipboard()
+        {
+            var selectedItems = FilesListView.SelectedItems.Cast<FileItem>();
+            if (selectedItems.Any())
+            {
+                var filePaths = new StringCollection();
+                filePaths.AddRange(selectedItems.Select(item => item.Path).ToArray());
+                Clipboard.SetFileDropList(filePaths);
+                MessageBox.Show("Файлы скопированы в буфер обмена.");
+            }
+        }
+        //Копировать директорию
+        private void CopyDirectory(string sourceDir, string destDir)
+        {
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+            {
+                var fileName = System.IO.Path.GetFileName(file);
+                var destFile = System.IO.Path.Combine(destDir, fileName);
+                File.Copy(file, destFile, true);
+            }
+
+            foreach (var subDir in Directory.GetDirectories(sourceDir))
+            {
+                var dirName = System.IO.Path.GetFileName(subDir);
+                var destSubDir = System.IO.Path.Combine(destDir, dirName);
+                CopyDirectory(subDir, destSubDir);
+            }
+        }
+        //Вставка файлов из буфера обмена
+        private async void PasteFilesFromClipboard()
+        {
+            if (Clipboard.ContainsFileDropList())
+            {
+                var filePaths = Clipboard.GetFileDropList().Cast<string>().ToList();
+                if (filePaths.Any())
+                {
+                    var targetDirectory = PathTextBox.Text; // Путь к текущей директории
+                    if (!Directory.Exists(targetDirectory))
+                    {
+                        MessageBox.Show("Целевая директория не существует.");
+                        return;
+                    }
+
+                    var loadingWindow = new LoadingWindow();
+                    loadingWindow.Show();
+
+                    await Task.Run(() =>
+                    {
+                        int totalFiles = filePaths.Count;
+                        int currentFile = 0;
+                        foreach (var filePath in filePaths)
+                        {
+                            var fileName = System.IO.Path.GetFileName(filePath);
+                            var targetFilePath = System.IO.Path.Combine(targetDirectory, fileName);
+
+                            if (File.Exists(targetFilePath))
+                            {
+                                var result = MessageBox.Show($"Файл с именем \"{fileName}\" уже существует. Перезаписать?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                                if (result == MessageBoxResult.No)
+                                {
+                                    fileName = "Copy_" + fileName;
+                                    targetFilePath = System.IO.Path.Combine(targetDirectory, fileName);// Пропустить копирование этого файла
+                                }
+                               
+                            }
+
+                            if (File.Exists(filePath))
+                            {
+                                File.Copy(filePath, targetFilePath, true);
+                            }
+                            else if (Directory.Exists(filePath))
+                            {
+                                CopyDirectory(filePath, targetFilePath);
+                            }
+                            currentFile++;
+                            Dispatcher.Invoke(() => loadingWindow.UpdateMessage($"Копирование {currentFile} из {totalFiles} файлов..."));
+                        }
+                    });
+
+                    loadingWindow.Close();
+                    MessageBox.Show("Файлы вставлены из буфера обмена.");
+                    LoadFiles(targetDirectory); // Обновление списка файлов
+                }
+            }
+        }
         // Метод для заполнения TreeView дисками
         private void PopulateDrives()
         {
@@ -387,8 +492,6 @@ namespace FileManager
 
         }
     }
-
-
     // Класс для представления файлов и папок в ListView
     public class FileItem
     {
