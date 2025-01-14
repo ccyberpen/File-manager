@@ -30,7 +30,7 @@ namespace FileManager
 
         private void FilesListView_KeyDown(object sender, KeyEventArgs e)
         {
-            
+
             if (e.Key == Key.C && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 CopySelectedFilesToClipboard();
@@ -38,6 +38,62 @@ namespace FileManager
             else if (e.Key == Key.V && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 PasteFilesFromClipboard();
+            }
+            else if (e.Key == Key.Delete)
+            {
+                DeleteSelectedFiles();
+            }
+        }
+        private void DeleteSelectedFiles()
+        {
+            var selectedItems = FilesListView.SelectedItems.Cast<FileItem>().ToList();
+            if (selectedItems.Any())
+            {
+                var result = MessageBox.Show("Вы уверены, что хотите удалить выбранные файлы?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    foreach (var item in selectedItems)
+                    {
+                        try
+                        {
+                            if (File.Exists(item.Path))
+                            {
+                                File.Delete(item.Path);
+                            }
+                            else if (Directory.Exists(item.Path))
+                            {
+                                Directory.Delete(item.Path, true);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Не удалось удалить файл: {item.Name}\nОшибка: {ex.Message}");
+                        }
+                    }
+                    LoadFiles(PathTextBox.Text); // Обновление списка файлов
+                }
+            }
+        }
+        private void CopyFileWithProgress(string sourcePath, string destPath, ProgressWindow progressWindow, int currentFile, int totalFiles)
+        {
+            const int bufferSize = 1024 * 1024; // 1 MB
+            byte[] buffer = new byte[bufferSize];
+
+            using (FileStream sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read))
+            using (FileStream destStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
+            {
+                long totalBytes = sourceStream.Length;
+                long bytesRead = 0;
+                int bytesReadInCurrentOperation;
+
+                while ((bytesReadInCurrentOperation = sourceStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    destStream.Write(buffer, 0, bytesReadInCurrentOperation);
+                    bytesRead += bytesReadInCurrentOperation;
+
+                    double progress = (double)bytesRead / totalBytes * 100;
+                    Dispatcher.Invoke(() => progressWindow.UpdateProgress(progress, $"Копирование {currentFile + 1} из {totalFiles} файлов..."));
+                }
             }
         }
         private void CopySelectedFilesToClipboard()
@@ -63,7 +119,14 @@ namespace FileManager
             {
                 var fileName = System.IO.Path.GetFileName(file);
                 var destFile = System.IO.Path.Combine(destDir, fileName);
-                File.Copy(file, destFile, true);
+                try
+                {
+                    File.Copy(file, destFile, true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось скопировать директорию:\nОшибка: {ex.Message}");
+                }
             }
 
             foreach (var subDir in Directory.GetDirectories(sourceDir))
@@ -88,13 +151,14 @@ namespace FileManager
                         return;
                     }
 
-                    var loadingWindow = new LoadingWindow();
-                    loadingWindow.Show();
+                    var progressWindow = new ProgressWindow();
+                    progressWindow.Show();
 
                     await Task.Run(() =>
                     {
                         int totalFiles = filePaths.Count;
                         int currentFile = 0;
+
                         foreach (var filePath in filePaths)
                         {
                             var fileName = System.IO.Path.GetFileName(filePath);
@@ -102,30 +166,36 @@ namespace FileManager
 
                             if (File.Exists(targetFilePath))
                             {
-                                var result = MessageBox.Show($"Файл с именем \"{fileName}\" уже существует. Перезаписать?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                                if (result == MessageBoxResult.No)
+                                if(filePath == targetFilePath)
                                 {
                                     fileName = "Copy_" + fileName;
-                                    targetFilePath = System.IO.Path.Combine(targetDirectory, fileName);// Пропустить копирование этого файла
+                                    targetFilePath = System.IO.Path.Combine(targetDirectory, fileName);
                                 }
-                               
+                                else
+                                {
+                                    var result = MessageBox.Show($"Файл с именем \"{fileName}\" уже существует. Перезаписать?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                                    if (result == MessageBoxResult.No)
+                                    {
+                                        fileName = "Copy_" + fileName;
+                                        targetFilePath = System.IO.Path.Combine(targetDirectory, fileName);// Пропустить копирование этого файла
+                                    }
+                                }
                             }
 
                             if (File.Exists(filePath))
                             {
-                                File.Copy(filePath, targetFilePath, true);
+                                CopyFileWithProgress(filePath, targetFilePath, progressWindow, currentFile, totalFiles);
                             }
                             else if (Directory.Exists(filePath))
                             {
                                 CopyDirectory(filePath, targetFilePath);
                             }
+
                             currentFile++;
-                            Dispatcher.Invoke(() => loadingWindow.UpdateMessage($"Копирование {currentFile} из {totalFiles} файлов..."));
                         }
                     });
 
-                    loadingWindow.Close();
-                    MessageBox.Show("Файлы вставлены из буфера обмена.");
+                    progressWindow.Close();
                     LoadFiles(targetDirectory); // Обновление списка файлов
                 }
             }
@@ -288,7 +358,7 @@ namespace FileManager
                 {
                     FilesListView.Items.Add(new FileItem
                     {
-                        
+
                         Icon = IconHelper.GetFileIcon(file.FullName, false),
                         Name = file.Name,
                         Size = FileSizeConverter.ReturnConvertedSize(file.Length),

@@ -15,18 +15,18 @@ using System.Windows.Shapes;
 namespace FileManager
 {
     /// <summary>
-    /// Логика взаимодействия для LoadingWindow.xaml
+    /// Логика взаимодействия для ProgressWindow.xaml
     /// </summary>
-    public partial class LoadingWindow : Window
+    public partial class ProgressWindow : Window
     {
-        public LoadingWindow()
+        public ProgressWindow()
         {
             InitializeComponent();
         }
-        public void UpdateMessage(string message)
+        public void UpdateProgress(double value, string message)
         {
-            LoadingTextBlock.Text = message;
+            ProgressBar.Value = value;
+            ProgressTextBlock.Text = message;
         }
     }
-
 }
