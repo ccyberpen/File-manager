@@ -60,6 +60,9 @@
     <Compile Include="ProgressWindow.xaml.cs">
       <DependentUpon>ProgressWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RenameDialog.xaml.cs">
+      <DependentUpon>RenameDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\FileSizeConverter.cs" />
     <Compile Include="Tools\IconHelper.cs" />
     <Page Include="MainWindow.xaml">
@@ -75,6 +78,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ProgressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RenameDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

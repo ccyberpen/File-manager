@@ -9,11 +9,11 @@
             
             <!-- Существующие кнопки -->
             <Button Content="Новый" Width="75" Margin="2"/>
-            <Button Content="Удалить" Width="75" Margin="2"/>
-            <Button Content="Копировать" Width="75" Margin="2"/>
-            <Button Content="Вставить" Width="75" Margin="2"/>
-            <Separator/>
-            <Button Content="Свойства" Width="75" Margin="2"/>
+            <Button Content="Удалить" Width="75" Margin="2" Click="DeleteButton_Click"/>
+            <Button Content="Копировать" Width="75" Margin="2" Click="CopyButton_Click"/>
+            <Button Content="Вставить" Width="75" Margin="2" Click="PasteButton_Click"/>
+         
+            <Button Content="Переименовать" Width="100" Margin="2" Click="RenameButton_Click"/>
         </ToolBar>
 
         <!-- Остальная часть XAML остается без изменений -->

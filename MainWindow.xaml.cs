@@ -27,7 +27,7 @@ namespace FileManager
         {
             PopulateDrives();
         }
-
+        // Обработчик нажатий клавиш/комбинаций
         private void FilesListView_KeyDown(object sender, KeyEventArgs e)
         {
 
@@ -42,6 +42,18 @@ namespace FileManager
             else if (e.Key == Key.Delete)
             {
                 DeleteSelectedFiles();
+            }
+            else if (e.Key == Key.F2)
+            {
+                RenameSelectedFile();
+            }
+            else if (e.Key == Key.Enter)
+            {
+                ChangeDirectory();
+            }
+            else if (e.Key == Key.Z && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                GotoPreviousDirectory();
             }
         }
         private void DeleteSelectedFiles()
@@ -387,9 +399,7 @@ namespace FileManager
                 MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
-
-        // Обработчик двойного клика в ListView
-        private void FilesListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void ChangeDirectory()
         {
             var selectedFile = FilesListView.SelectedItem as FileItem;
             if (selectedFile != null)
@@ -397,8 +407,6 @@ namespace FileManager
                 var selectedTreeItem = DirectoryTreeView.SelectedItem as TreeViewItem;
                 if (selectedTreeItem != null)
                 {
-                    //string currentPath = PathTextBox.Text;
-                    /*string newPath = System.IO.Path.Combine(currentPath, selectedFile.Name);*/
 
                     if (Directory.Exists(selectedFile.Path))
                     {
@@ -436,6 +444,11 @@ namespace FileManager
                     }
                 }
             }
+        }
+        // Обработчик двойного клика в ListView
+        private void FilesListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ChangeDirectory();
         }
 
         // Метод для поиска TreeViewItem по пути
@@ -540,8 +553,7 @@ namespace FileManager
                 MessageBox.Show("Не удалось найти указанный путь в навигации.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        //Обработчик нажатия кнопки "назад"
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void GotoPreviousDirectory()
         {
             string path = PathTextBox.Text;
 
@@ -556,10 +568,104 @@ namespace FileManager
                 MessageBox.Show("Родительского каталога нет.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        //Обработчик нажатия кнопки "назад"
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            GotoPreviousDirectory();
+        }
 
         private void PathTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            CopySelectedFilesToClipboard();
+        }
+
+        private void PasteButton_Click(object sender, RoutedEventArgs e)
+        {
+            PasteFilesFromClipboard();
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteSelectedFiles();
+        }
+        private void RenameSelectedFile()
+        {
+            if (FilesListView.SelectedItem is FileItem selectedFile)
+            {
+                string currentPath = PathTextBox.Text;
+                string oldName = selectedFile.Name;
+                string oldFullPath = Path.Combine(currentPath, oldName);
+
+                // Показать диалог для ввода нового имени
+                RenameDialog renameDialog = new RenameDialog(oldName);
+                renameDialog.Owner = this;
+                if (renameDialog.ShowDialog() == true)
+                {
+                    string newName = renameDialog.NewName.Trim();
+
+                    if (string.IsNullOrWhiteSpace(newName))
+                    {
+                        MessageBox.Show("Имя не может быть пустым.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    if (newName.Equals(oldName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Имя не изменилось
+                        return;
+                    }
+
+                    string newFullPath = Path.Combine(currentPath, newName);
+
+                    // Проверка существования файла или директории с новым именем
+                    if (File.Exists(newFullPath) || Directory.Exists(newFullPath))
+                    {
+                        MessageBox.Show("Файл или папка с таким именем уже существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    try
+                    {
+                        if (File.Exists(oldFullPath))
+                        {
+                            File.Move(oldFullPath, newFullPath);
+                        }
+                        else if (Directory.Exists(oldFullPath))
+                        {
+                            Directory.Move(oldFullPath, newFullPath);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Исходный файл или папка не существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+
+                        // Обновить имя и путь в привязанном объекте
+                        selectedFile.Name = newName;
+                        selectedFile.Path = newFullPath;
+
+                        // Обновить отображение
+                        FilesListView.Items.Refresh();
+
+                        // Обновить статус
+                        StatusBar.Items.Clear();
+                        StatusBar.Items.Add(new StatusBarItem { Content = "Переименование успешно." });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при переименовании: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+        private void RenameButton_Click(object sender, RoutedEventArgs e)
+        {
+            RenameSelectedFile();
         }
     }
     // Класс для представления файлов и папок в ListView
