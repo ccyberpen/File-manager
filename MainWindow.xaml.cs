@@ -26,6 +26,15 @@ namespace FileManager
         private void DirectoryTreeView_Loaded(object sender, RoutedEventArgs e)
         {
             PopulateDrives();
+            SelectTreeViewItemByPath("C:/");
+        }
+        private void ListView_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadFiles("C:/");
+        }
+        private void PathTextBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdatePathTextBox("C:/");
         }
         // Обработчик нажатий клавиш/комбинаций
         private void FilesListView_KeyDown(object sender, KeyEventArgs e)
@@ -54,6 +63,10 @@ namespace FileManager
             else if (e.Key == Key.Z && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 GotoPreviousDirectory();
+            }
+            else if (e.Key == Key.N && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                CreateNewItem();
             }
         }
         private void DeleteSelectedFiles()
@@ -349,7 +362,7 @@ namespace FileManager
             try
             {
                 var dirInfo = new DirectoryInfo(path);
-
+                
                 // Загрузка папок
                 foreach (var directory in dirInfo.GetDirectories())
                 {
@@ -665,6 +678,51 @@ namespace FileManager
         private void RenameButton_Click(object sender, RoutedEventArgs e)
         {
             RenameSelectedFile();
+        }
+        private void CreateNewItem()
+        {
+            // Открываем диалоговое окно для выбора типа элемента
+            var dialog = new NewItemDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                string itemType = dialog.SelectedItemType; // "Folder" или "File"
+                string name = dialog.ItemName;
+
+                // Получаем текущий путь из PathTextBox
+                string currentPath = PathTextBox.Text;
+
+                if (string.IsNullOrWhiteSpace(currentPath) || !Directory.Exists(currentPath))
+                {
+                    MessageBox.Show("Текущий путь недействителен.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                string newPath = Path.Combine(currentPath, name);
+
+                try
+                {
+                    if (itemType == "Каталог")
+                    {
+                        Directory.CreateDirectory(newPath);
+                    }
+                    else if (itemType == "Файл")
+                    {
+                        // Создаём пустой файл
+                        File.Create(newPath).Dispose();
+                    }
+
+                    // Обновляем ListView
+                    LoadFiles(currentPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось создать элемент: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        private void NewButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewItem();
         }
     }
     // Класс для представления файлов и папок в ListView

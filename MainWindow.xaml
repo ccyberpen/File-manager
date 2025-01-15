@@ -2,14 +2,22 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:FileManager"
-        Title="Файловый Менеджер" Height="600" Width="900">
+        Icon="pack://application:,,,/Resources/plus.png"
+        Title="Файловый Менеджер" Height="600" Width="900" MinWidth="900" MinHeight="600">
     <DockPanel>
         <!-- Панель инструментов -->
         <ToolBar DockPanel.Dock="Top">
 
             <!-- Существующие кнопки -->
-            <Button Content="Новый" Width="75" Margin="2"/>
-            
+            <Button Width="75" Margin="2" Click="NewButton_Click">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/plus.png" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Новый" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
             <Button Width="100" Margin="2" Click="CopyButton_Click">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
@@ -62,6 +70,7 @@
                      VerticalAlignment="Center" 
                      Margin="5,0,0,0" 
                      Width="800" 
+                     Loaded="PathTextBox_Loaded"
                      KeyDown="PathTextBox_KeyDown" TextChanged="PathTextBox_TextChanged"/>
         </StackPanel>
 
@@ -88,7 +97,7 @@
 
             <!-- Панель содержимого (ListView) -->
             <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5,0,0,0">
-                <ListView Name="FilesListView" MouseDoubleClick="FilesListView_MouseDoubleClick" KeyDown="FilesListView_KeyDown">
+                <ListView Name="FilesListView" MouseDoubleClick="FilesListView_MouseDoubleClick" KeyDown="FilesListView_KeyDown" Loaded="ListView_Loaded"> 
                     <ListView.View>
                         <GridView>
 

@@ -1,0 +1,29 @@
+﻿<Window x:Class="FileManager.NewItemDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="pack://application:,,,/Resources/appicon.png"
+        Title="Создать новый элемент" Height="200" Width="300" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Тип элемента:" Grid.Row="0" VerticalAlignment="Center"/>
+        <ComboBox Name="ItemTypeComboBox" Grid.Row="1" Margin="0,5,0,10" SelectedIndex="0">
+            <ComboBoxItem Content="Каталог"/>
+            <ComboBoxItem Content="Файл"/>
+        </ComboBox>
+
+        <TextBlock Text="Имя:" Grid.Row="2" VerticalAlignment="Center"/>
+        <TextBox Name="ItemNameTextBox" Grid.Row="3" Margin="0,10,0,5" TextChanged="ItemNameTextBox_TextChanged" />
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="OK" Width="75" Margin="5" IsDefault="True" Click="OkButton_Click"/>
+            <Button Content="Отмена" Width="75" Margin="5" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

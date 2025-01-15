@@ -1,6 +1,7 @@
 ﻿<Window x:Class="FileManager.RenameDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="pack://application:,,,/Resources/appicon.png"
         Title="Переименовать" Height="150" Width="400" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid Margin="10">
         <Grid.RowDefinitions>

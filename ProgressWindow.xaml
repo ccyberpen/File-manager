@@ -1,6 +1,7 @@
 ﻿<Window x:Class="FileManager.ProgressWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="pack://application:,,,/Resources/appicon.png"
         Title="Копирование файлов" Height="150" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <StackPanel Margin="10">
         <TextBlock Name="ProgressTextBlock" Text="Копирование файлов..." FontSize="16" Margin="0,0,0,10"/>
