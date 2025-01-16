@@ -126,9 +126,6 @@
     <Resource Include="Resources\folder.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\left.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\copy.png" />
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +142,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\appicon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\back.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

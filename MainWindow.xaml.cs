@@ -81,14 +81,11 @@ namespace FileManager
                     {
                         try
                         {
-                            if (File.Exists(item.Path))
-                            {
-                                File.Delete(item.Path);
-                            }
-                            else if (Directory.Exists(item.Path))
-                            {
-                                Directory.Delete(item.Path, true);
-                            }
+                            //Перемещение файла/директории в корзину
+                            const int ssfBITBUCKET = 0xa;
+                            dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
+                            var recycleBin = shell.Namespace(ssfBITBUCKET);
+                            recycleBin.MoveHere(item.Path);
                         }
                         catch (Exception ex)
                         {
@@ -355,14 +352,17 @@ namespace FileManager
         private void LoadFiles(string path)
         {
             FilesListView.Items.Clear();
-            if (String.IsNullOrEmpty(Path.GetDirectoryName(path)) || String.IsNullOrEmpty(path))
-                BackButton.IsEnabled = false;
-            else
-                BackButton.IsEnabled = true;
             try
             {
                 var dirInfo = new DirectoryInfo(path);
-                
+                if (!String.IsNullOrEmpty(path) && !String.IsNullOrEmpty(Path.GetDirectoryName(path)))
+                {
+                    FilesListView.Items.Add(new BackItem
+                    {
+                        Icon = new BitmapImage(new Uri("pack://application:,,,/Resources/back.png")),
+                        Name = "[..]"
+                    }) ;
+                }
                 // Загрузка папок
                 foreach (var directory in dirInfo.GetDirectories())
                 {
@@ -454,6 +454,14 @@ namespace FileManager
                             MessageBox.Show($"Не удалось открыть файл: {ex.Message}");
                         }
                     }
+                }
+            }
+            else
+            {
+                var back = FilesListView.SelectedItem as BackItem;
+                if (back != null)
+                {
+                    GotoPreviousDirectory();
                 }
             }
         }
@@ -580,11 +588,7 @@ namespace FileManager
                 MessageBox.Show("Родительского каталога нет.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        //Обработчик нажатия кнопки "назад"
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            GotoPreviousDirectory();
-        }
+        
 
         private void PathTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -734,5 +738,10 @@ namespace FileManager
         public string DateModified { get; set; }
         public ImageSource Icon { get; set; }
         public string Path { get; set; }
+    }
+    public class BackItem
+    {
+        public string Name { get; set; }
+        public ImageSource Icon { get; set; }
     }
 }
