@@ -452,8 +452,6 @@ namespace FileManager
                         {
                             // Если узел не найден, обновляем текущий узел
                             LoadFiles(selectedFile.Path);
-
-                            // Можно также автоматически выбрать и развернуть узел
                         }
                     }
                     else
@@ -746,20 +744,5 @@ namespace FileManager
         {
             CreateNewItem();
         }
-    }
-    // Класс для представления файлов и папок в ListView
-    public class FileItem
-    {
-        public string Name { get; set; }
-        public string Size { get; set; }
-        public string Type { get; set; }
-        public string DateModified { get; set; }
-        public ImageSource Icon { get; set; }
-        public string Path { get; set; }
-    }
-    public class BackItem
-    {
-        public string Name { get; set; }
-        public ImageSource Icon { get; set; }
     }
 }
