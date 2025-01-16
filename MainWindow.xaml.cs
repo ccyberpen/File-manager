@@ -58,7 +58,7 @@ namespace FileManager
             }
             else if (e.Key == Key.Enter)
             {
-                ChangeDirectory();
+                OpenFolderOrFile();
             }
             else if (e.Key == Key.Z && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
@@ -67,6 +67,24 @@ namespace FileManager
             else if (e.Key == Key.N && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 CreateNewItem();
+            }
+            else if(e.Key == Key.F3)
+            {
+                PreviewFile();
+            }
+        }
+        private void PreviewFile()
+        {
+            if (FilesListView.SelectedItem is FileItem selectedItem)
+            {
+                string filePath = selectedItem.Path;
+
+                if (File.Exists(filePath))
+                {
+                    PreviewWindow preview = new PreviewWindow(filePath);
+                    preview.Owner = this;
+                    preview.ShowDialog();
+                }
             }
         }
         private void DeleteSelectedFiles()
@@ -411,7 +429,7 @@ namespace FileManager
                 MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
-        private void ChangeDirectory()
+        private void OpenFolderOrFile()
         {
             var selectedFile = FilesListView.SelectedItem as FileItem;
             if (selectedFile != null)
@@ -468,7 +486,7 @@ namespace FileManager
         // Обработчик двойного клика в ListView
         private void FilesListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            ChangeDirectory();
+            OpenFolderOrFile();
         }
 
         // Метод для поиска TreeViewItem по пути
