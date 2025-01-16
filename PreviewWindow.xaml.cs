@@ -100,13 +100,13 @@ namespace FileManager
 
         private bool IsVideo(string extension)
         {
-            string[] supportedVideos = { ".mp4", ".avi", ".mov", ".wmv" };
+            string[] supportedVideos = { ".mp4", ".avi", ".wmv" };
             return Array.Exists(supportedVideos, ext => ext == extension);
         }
 
         private bool IsAudio(string extension)
         {
-            string[] supportedAudios = { ".mp3", ".wav", ".aac", ".wma" };
+            string[] supportedAudios = { ".mp3", ".wav", };
             return Array.Exists(supportedAudios, ext => ext == extension);
         }
     }
