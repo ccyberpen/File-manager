@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileExplorer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Windows.Media;
 
 namespace FileManager
 {
-    public class BackItem
+    public class BackItem : IListItem
     {
         public string Name { get; set; }
         public ImageSource Icon { get; set; }

@@ -16,6 +16,7 @@ namespace FileManager
 {
     public partial class MainWindow : Window
     {
+        public FileSystem fileSystem = new FileSystem();
         public MainWindow()
         {
             InitializeComponent();
@@ -42,7 +43,7 @@ namespace FileManager
 
             if (e.Key == Key.C && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
-                CopySelectedFilesToClipboard();
+                Copy();
             }
             else if (e.Key == Key.V && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
@@ -73,6 +74,16 @@ namespace FileManager
                 PreviewFile();
             }
         }
+        private void Copy()
+        {
+            var selectedItems = FilesListView.SelectedItems.Cast<FileItem>();
+            var filePaths = new StringCollection();
+            filePaths.AddRange(selectedItems.Select(item => item.Path).ToArray());
+            if(fileSystem.CopyFilesToClipboard(filePaths) != 1)
+            {
+                MessageBox.Show($"Не удалось удалить файлы");
+            }
+        }
         private void PreviewFile()
         {
             if (FilesListView.SelectedItem is FileItem selectedItem)
@@ -97,18 +108,12 @@ namespace FileManager
                 {
                     foreach (var item in selectedItems)
                     {
-                        try
+                       
+                        if(fileSystem.MoveToRecycleBin(item.Path) != 1)
                         {
-                            //Перемещение файла/директории в корзину
-                            const int ssfBITBUCKET = 0xa;
-                            dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
-                            var recycleBin = shell.Namespace(ssfBITBUCKET);
-                            recycleBin.MoveHere(item.Path);
+                            MessageBox.Show($"Не удалось удалить файл: {item.Name}");
                         }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Не удалось удалить файл: {item.Name}\nОшибка: {ex.Message}");
-                        }
+                            
                     }
                     LoadFiles(PathTextBox.Text); // Обновление списка файлов
                 }
@@ -136,47 +141,11 @@ namespace FileManager
                 }
             }
         }
-        private void CopySelectedFilesToClipboard()
-        {
-            var selectedItems = FilesListView.SelectedItems.Cast<FileItem>();
-            if (selectedItems.Any())
-            {
-                var filePaths = new StringCollection();
-                filePaths.AddRange(selectedItems.Select(item => item.Path).ToArray());
-                Clipboard.SetFileDropList(filePaths);
-            }
-        }
+        
         //Копировать директорию
-        private void CopyDirectory(string sourceDir, string destDir)
-        {
-            if (!Directory.Exists(destDir))
-            {
-                Directory.CreateDirectory(destDir);
-            }
-
-            foreach (var file in Directory.GetFiles(sourceDir))
-            {
-                var fileName = System.IO.Path.GetFileName(file);
-                var destFile = System.IO.Path.Combine(destDir, fileName);
-                try
-                {
-                    File.Copy(file, destFile, true);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Не удалось скопировать директорию:\nОшибка: {ex.Message}");
-                }
-            }
-
-            foreach (var subDir in Directory.GetDirectories(sourceDir))
-            {
-                var dirName = System.IO.Path.GetFileName(subDir);
-                var destSubDir = System.IO.Path.Combine(destDir, dirName);
-                CopyDirectory(subDir, destSubDir);
-            }
-        }
+        
         //Вставка файлов из буфера обмена
-        private async void PasteFilesFromClipboard(bool cut=false)
+        private async void PasteFilesFromClipboard()
         {
             if (Clipboard.ContainsFileDropList())
             {
@@ -227,7 +196,11 @@ namespace FileManager
                             }
                             else if (Directory.Exists(filePath))
                             {
-                                CopyDirectory(filePath, targetFilePath);
+
+                                if(fileSystem.CopyDirectory(filePath, targetFilePath) != 1)
+                                {
+                                    MessageBox.Show($"Не удалось скопировать директорию:");
+                                }
                             }
 
                             currentFile++;
@@ -613,7 +586,7 @@ namespace FileManager
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            CopySelectedFilesToClipboard();
+            Copy();
         }
 
         private void PasteButton_Click(object sender, RoutedEventArgs e)
@@ -663,15 +636,8 @@ namespace FileManager
 
                     try
                     {
-                        if (File.Exists(oldFullPath))
-                        {
-                            File.Move(oldFullPath, newFullPath);
-                        }
-                        else if (Directory.Exists(oldFullPath))
-                        {
-                            Directory.Move(oldFullPath, newFullPath);
-                        }
-                        else
+                        
+                        if(fileSystem.RenameFile(oldFullPath,newFullPath) != 1)
                         {
                             MessageBox.Show("Исходный файл или папка не существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
@@ -682,11 +648,10 @@ namespace FileManager
                         selectedFile.Path = newFullPath;
 
                         // Обновить отображение
-                        FilesListView.Items.Refresh();
+                        LoadFiles(currentPath);
 
                         // Обновить статус
                         StatusBar.Items.Clear();
-                        StatusBar.Items.Add(new StatusBarItem { Content = "Переименование успешно." });
                     }
                     catch (Exception ex)
                     {
@@ -719,25 +684,12 @@ namespace FileManager
 
                 string newPath = Path.Combine(currentPath, name);
 
-                try
+                
+                if(fileSystem.CreateNewFile(itemType, newPath) != 1)
                 {
-                    if (itemType == "Каталог")
-                    {
-                        Directory.CreateDirectory(newPath);
-                    }
-                    else if (itemType == "Файл")
-                    {
-                        // Создаём пустой файл
-                        File.Create(newPath).Dispose();
-                    }
-
-                    // Обновляем ListView
-                    LoadFiles(currentPath);
+                    MessageBox.Show($"Не удалось создать элемент", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Не удалось создать элемент: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                LoadFiles(currentPath);
             }
         }
         private void NewButton_Click(object sender, RoutedEventArgs e)

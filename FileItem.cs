@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileExplorer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Windows.Media;
 
 namespace FileManager
 {
-    public class FileItem
+    public class FileItem : IListItem
     {
         public string Name { get; set; }
         public string Size { get; set; }

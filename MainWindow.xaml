@@ -56,7 +56,7 @@
         <!-- Остальная часть XAML остается без изменений -->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
             <!-- Кнопка "Назад" -->
-            
+
             <Label Content="Текущий путь:" VerticalAlignment="Center" />
             <TextBox Name="PathTextBox" 
                      Text="" 
@@ -81,16 +81,16 @@
 
             <!-- Панель навигации (TreeView) -->
             <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1">
-                
-                    <TreeView Name="DirectoryTreeView" Loaded="DirectoryTreeView_Loaded" SelectedItemChanged="DirectoryTreeView_SelectedItemChanged">
-                        <!-- Диски будут добавлены динамически в коде -->
-                    </TreeView>
-                
+
+                <TreeView Name="DirectoryTreeView" Loaded="DirectoryTreeView_Loaded" SelectedItemChanged="DirectoryTreeView_SelectedItemChanged">
+                    <!-- Диски будут добавлены динамически в коде -->
+                </TreeView>
+
             </Border>
 
             <!-- Панель содержимого (ListView) -->
             <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5,0,0,0">
-                <ListView Name="FilesListView" MouseDoubleClick="FilesListView_MouseDoubleClick" KeyDown="FilesListView_KeyDown" Loaded="ListView_Loaded"> 
+                <ListView Name="FilesListView" MouseDoubleClick="FilesListView_MouseDoubleClick" KeyDown="FilesListView_KeyDown" Loaded="ListView_Loaded">
                     <ListView.View>
                         <GridView>
 
@@ -99,8 +99,8 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,5,0" />
-                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                            <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,5,0"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

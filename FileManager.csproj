@@ -59,6 +59,8 @@
     </ApplicationDefinition>
     <Compile Include="BackItem.cs" />
     <Compile Include="FileItem.cs" />
+    <Compile Include="FileSystem.cs" />
+    <Compile Include="IListItem.cs" />
     <Compile Include="NewItemDialog.xaml.cs">
       <DependentUpon>NewItemDialog.xaml</DependentUpon>
     </Compile>
