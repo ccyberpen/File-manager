@@ -342,6 +342,7 @@ namespace FileManager
         private void LoadFiles(string path)
         {
             FilesListView.Items.Clear();
+            int itemCount = 0;
             try
             {
                 var dirInfo = new DirectoryInfo(path);
@@ -352,6 +353,7 @@ namespace FileManager
                         Icon = new BitmapImage(new Uri("pack://application:,,,/Resources/back.png")),
                         Name = "[..]"
                     }) ;
+                    itemCount -= 1;
                 }
                 // Загрузка папок
                 foreach (var directory in dirInfo.GetDirectories())
@@ -384,7 +386,7 @@ namespace FileManager
                 }
 
                 // Обновить статусную строку
-                var itemCount = FilesListView.Items.Count;
+                itemCount += FilesListView.Items.Count;
                 StatusBar.Items.Clear();
                 StatusBar.Items.Add(new StatusBarItem { Content = $"Элементов: {itemCount}" });
             }
