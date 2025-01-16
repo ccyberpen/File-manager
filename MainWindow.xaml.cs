@@ -121,7 +121,7 @@ namespace FileManager
         }
         private void CopyFileWithProgress(string sourcePath, string destPath, ProgressWindow progressWindow, int currentFile, int totalFiles)
         {
-            const int bufferSize = 1024 * 1024; // 1 MB
+            const long bufferSize = 1024 * 1024*1024;
             byte[] buffer = new byte[bufferSize];
 
             using (FileStream sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read))
@@ -133,8 +133,7 @@ namespace FileManager
 
                 while ((bytesReadInCurrentOperation = sourceStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    destStream.Write(buffer, 0, bytesReadInCurrentOperation);
-                    bytesRead += bytesReadInCurrentOperation;
+                    fileSystem.MoveFile(destStream, buffer, bytesReadInCurrentOperation);
 
                     double progress = (double)bytesRead / totalBytes * 100;
                     Dispatcher.Invoke(() => progressWindow.UpdateProgress(progress, $"Копирование {currentFile + 1} из {totalFiles} файлов..."));

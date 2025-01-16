@@ -104,5 +104,12 @@ namespace FileManager
             }
             return 1;
         }
+        public long MoveFile(FileStream destStream, byte[] buffer, int bytesReadInCurrentOperation)
+        {
+            long bytesRead=0;
+            destStream.Write(buffer, 0, bytesReadInCurrentOperation);
+            bytesRead += bytesReadInCurrentOperation;
+            return bytesRead;
+        }
     }
 }
